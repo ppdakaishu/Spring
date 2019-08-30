@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+	<!-- 抽象 bean : bean 的 abstract 属性为 true 的 bean. 这样的 bean 不能被 IOC 容器实例化.  只用来被继承配置 -->
+	<!-- 若某一个 bean 的 class 属性没有指定.  则该 bean 必须是一个抽象 bean -->
+	<bean id="address1" abstract="true">
+		<property name="provice" value="sichuan"></property>
+		<property name="city" value="chengdu"></property>
+	</bean>
+	
+	<!-- bean 配置的继承 : 使用 bean 的 parent 属性指定继承哪个 bean 的配置 -->
+	<bean id="address2" class="com.spring.ioc.xml.autowire.Address" parent="address1">
+		<property name="city" value="mianyang"></property>
+	</bean>
+	
+	<bean id="staff" class="com.spring.ioc.xml.autowire.Staff">
+		<property name="name" value="chenbowen"></property>
+		<property name="age" value="25"></property>
+	</bean>
+	
+	<bean id="company" class="com.spring.ioc.xml.autowire.Company" depends-on="staff, address2">
+		<property name="name" value="yinzhijie"></property>
+		<property name="address" ref="address2"></property>
+	</bean>
+	
+</beans>

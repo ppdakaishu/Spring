@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+	<!-- 通过静态工厂方法来配置 Bean. 注意不是配置静态工厂方法实例, 而是 bean 实例 -->
+	<!-- 
+		class : 指向静态工厂的全类名
+		factory-method : 指向静态工厂的方法名
+		constructor-arg : 如果静态工厂方法需要传参, 则使用其配置参数
+	 -->
+	<bean id="staticFactory" class="com.spring.ioc.xml.factory.StaticFactory" factory-method="getStaff">
+		<constructor-arg value="chenbowen"></constructor-arg>
+	</bean>
+	
+	<!-- 配置实例工厂 -->
+	<bean id="instanceFactory" class="com.spring.ioc.xml.factory.InstanceFactory"></bean>
+	
+	<!-- 通过实例工厂方法来配置 Bean -->
+	<!-- 
+		factory-bean : 指向实例工厂方法的 bean
+		factory-method : 指向静态工厂的方法名
+		constructor-arg : 如果静态工厂方法需要传参, 则使用其配置参数
+	 -->
+	<bean id="staff" factory-bean="instanceFactory" factory-method="getStaff">
+		<constructor-arg value="chenbowen"></constructor-arg>
+	</bean>
+	
+</beans>

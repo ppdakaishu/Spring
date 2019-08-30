@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- 导入属性文件 -->
+	<context:property-placeholder location="classpath:DBParam.properties"/>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- 使用外部属性文件的属性 -->
+		<property name="user" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+		<property name="driverClass" value="${driverClass}"></property>
+		<property name="jdbcUrl" value="${jdbcUrl}"></property>
+	</bean>
+	
+	<bean id="pojo" class="com.spring.ioc.xml.outside.Pojo">
+		<property name="name" value="chenbowen"></property>
+		<property name="age" value="25"></property>
+	</bean>
+	
+	<!-- MethodInvokingFactoryBean -->
+	<bean id="pojoMethodInvoking" class="com.spring.ioc.xml.outside.Pojo">
+		<!-- 调用非静态方法 -->
+		<property name="name">
+			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+				<!-- targetObject 指定方法所在的目标类 -->
+				<property name="targetObject" ref="pojo" />
+				<!-- targetMethod 指定方法名 -->
+				<property name="targetMethod" value="getNameValue" />
+				<!-- 配置目标方法入参 -->
+				<property name="arguments">
+					<!-- 使用list元素列出调用方法的多个参数 -->
+					<list>
+						<value>TestMethodInvokingFactoryBean_</value>
+						<value>Name</value>
+					</list>
+				</property>
+			</bean>
+		</property>
+		<!-- 调用静态方法 -->
+		<property name="age">
+			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+				<!-- targetClass 指定方法所在的目标类 -->
+				<property name="targetClass" value="com.spring.ioc.xml.outside.Pojo" />
+				<!-- targetMethod 指定方法名 -->
+				<property name="targetMethod" value="getAgeValue" />
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- FiledRetrievingFactoryBean -->
+	<bean id="pojoFiledRetrieving" class="com.spring.ioc.xml.outside.Pojo">
+		<property name="name">
+			<bean class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+				 <!-- targetClass 指定字段所在的目标类 -->
+				 <property name="targetClass" value="com.spring.ioc.xml.outside.Pojo" />
+				 <!-- targetField 指定字段名 -->
+				 <property name="targetField" value="NAMEFIELD" />
+			</bean>
+		</property>
+		<property name="age">
+			<bean id="com.spring.ioc.xml.outside.Pojo.AGEFIELD" 
+				class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+		</property>
+	</bean>
+	
+	<!-- PropertyPathFactoryBean -->
+	<bean id="pojoPpropertyPath" class="com.spring.ioc.xml.outside.Pojo">
+		<property name="name">
+			<bean class="org.springframework.beans.factory.config.PropertyPathFactoryBean">
+				<!-- 确定目标Bean, 表明 propertyPathFactoryBean2 来自哪个 Bean 的组件 -->
+				<property name="targetBeanName" value="pojo" />
+				<!-- 确定属性, 表明 propertyPathFactoryBean2 来自目标 Bean 的哪个属性 -->
+				<property name="propertyPath" value="name" />
+			</bean>
+		</property>
+		<property name="age">
+			<bean id="pojo.age" class="org.springframework.beans.factory.config.PropertyPathFactoryBean" />
+		</property>
+	</bean>
+	
+	
+</beans>

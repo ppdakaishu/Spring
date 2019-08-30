@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<!-- 配置 bean -->
+	<bean id="calculator" class="com.spring.aop.xml.impl.CalculatorImpl"></bean>
+
+	<!-- 配置校验切面 bean -->
+	<bean id="validAspectJ" class="com.spring.aop.xml.aspectJ.ValidAspectJ"></bean>
+
+	<!-- 配置日志切面 bean -->
+	<bean id="loggerAspectJ" class="com.spring.aop.xml.aspectJ.LoggingAspectJ"></bean>
+
+	<!-- 配置AOP -->
+	<aop:config>
+		<!-- 配置切点表达式 -->
+		<aop:pointcut expression="execution(* com.spring.aop.xml.impl.CalculatorImpl.*(..))" id="pointcut"/>
+		<!-- 配置切面及通知 -->
+		<aop:aspect ref="loggerAspectJ" order="1">
+			<aop:before method="beforeMethodLogger" pointcut-ref="pointcut"/>
+			<aop:after method="afterMethodLogger" pointcut-ref="pointcut"/>
+			<aop:after-returning method="afterMethodReturnLogger" pointcut-ref="pointcut" returning="result"/>
+			<aop:after-throwing method="afterMethodThrowingLogger" pointcut-ref="pointcut" throwing="ex"/>
+			<!--  
+			<aop:around method="aroundMethod" pointcut-ref="pointcut"/>
+			-->
+		</aop:aspect>
+		<aop:aspect ref="validAspectJ" order="0">
+			<aop:before method="validArgs" pointcut-ref="pointcut"/>
+		</aop:aspect>
+	</aop:config>
+
+
+</beans>

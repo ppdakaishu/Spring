@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+		
+	<!-- 配置扫描的包 -->
+	<context:component-scan base-package="com.spring.transaction.xml"></context:component-scan>
+
+	<!-- 引入外部数据文件 -->
+	<context:property-placeholder location="classpath:DBParam.properties"/>
+	
+	<!-- 配置 DataSource -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="user" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+		<property name="driverClass" value="${driverClass}"></property>
+		<property name="jdbcUrl" value="${jdbcUrl}"></property>
+	</bean>
+	
+	<!-- 配置JdbcTemplate -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 配置 Dao -->
+	<bean id="bookShopDao" class="com.spring.transaction.xml.dao.impl.BookShopDaoImpl">
+		<property name="jdbcTemplate" ref="jdbcTemplate"></property>
+	</bean>
+	
+	<!-- 配置 Service -->
+	<bean id="bookShopService" class="com.spring.transaction.xml.service.impl.BookShopServiceImpl">
+		<property name="bookShopDao" ref="bookShopDao"></property>
+	</bean>
+	
+	<bean id="bookShopBatchService" class="com.spring.transaction.xml.service.impl.BookShopBatchServiceImpl">
+		<property name="bookShopService" ref="bookShopService"></property>
+	</bean>
+
+	<!-- 配置 Controller -->
+	<bean id="bookShopController" class="com.spring.transaction.xml.controller.BookShopController">
+		<property name="bookShopService" ref="bookShopService"></property>
+		<property name="bookShopBatchService" ref="bookShopBatchService"></property>
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 配置事务属性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 指定事务传播性, 测试 REQUIRES_NEW 时, 注意 name 需写为被调用事务的方法名 -->
+			<tx:method name="buyBook" propagation="REQUIRES_NEW"/>
+			<!-- 支持通配符 -->
+			<tx:method name="find*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 配置事务切入点, 并关联事务属性与事务切入点 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.spring.transaction.xml.service.*.*(..))" id="pointcut"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"/>
+	</aop:config>
+	
+</beans>
